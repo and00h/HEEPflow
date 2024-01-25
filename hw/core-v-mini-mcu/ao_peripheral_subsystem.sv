@@ -59,7 +59,7 @@ module ao_peripheral_subsystem
     output logic peripheral_subsystem_powergate_iso_no,
     output logic peripheral_subsystem_rst_no,
     output logic [core_v_mini_mcu_pkg::NUM_BANKS-1:0] memory_subsystem_banks_powergate_switch_no,
-    input  logic [core_v_mini_mcu_pkg::NUM_BANKS-1:0] memory_subsystem_banks_powergate_switch_ack_ni,
+    input logic [core_v_mini_mcu_pkg::NUM_BANKS-1:0] memory_subsystem_banks_powergate_switch_ack_ni,
     output logic [core_v_mini_mcu_pkg::NUM_BANKS-1:0] memory_subsystem_banks_powergate_iso_no,
     output logic [core_v_mini_mcu_pkg::NUM_BANKS-1:0] memory_subsystem_banks_set_retentive_no,
     output logic [EXT_DOMAINS_RND-1:0] external_subsystem_powergate_switch_no,
@@ -445,6 +445,11 @@ module ao_peripheral_subsystem
       .tl_i(uart_tl_d2h),
       .reg_req_i(ao_peripheral_slv_req[core_v_mini_mcu_pkg::UART_IDX]),
       .reg_rsp_o(ao_peripheral_slv_rsp[core_v_mini_mcu_pkg::UART_IDX])
+  );
+
+  tflite_rom tflite_rom_i (
+      .reg_req_i(ao_peripheral_slv_req[core_v_mini_mcu_pkg::TFLITE_ROM_IDX]),
+      .reg_rsp_o(ao_peripheral_slv_rsp[core_v_mini_mcu_pkg::TFLITE_ROM_IDX])
   );
 
   uart uart_i (
