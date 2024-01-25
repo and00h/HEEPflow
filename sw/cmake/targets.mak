@@ -21,7 +21,7 @@ build : build/Makefile
 
 setup : build/Makefile
 
-build/Makefile : CMakeLists.txt ${CMAKE_DIR}/riscv.cmake
+build/Makefile : libtflm CMakeLists.txt ${CMAKE_DIR}/riscv.cmake ${CMAKE_DIR}/tflite.cmake
 	if [ ! -d build ] ; then mkdir build ; fi
 	cd build;  \
 		${CMAKE} \
@@ -39,7 +39,7 @@ build/Makefile : CMakeLists.txt ${CMAKE_DIR}/riscv.cmake
 			-DCOMPILER_PREFIX:STRING=${COMPILER_PREFIX} \
 		    ../ 
 
-clean:
+clean: libtflm-clean
 	rm -rf build
 
 .PHONY: setup build

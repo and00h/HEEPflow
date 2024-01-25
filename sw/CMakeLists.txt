@@ -42,14 +42,16 @@ if(NOT WIN32)
 endif()
 
 # set the project name
-project(${PROJECT} ASM C)
+project(${PROJECT} ASM C CXX)
 
 # set the required CMake standard
 set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_C_STANDARD 11)
 
 # Set MAIN file
 SET(MAINFILE "main")
 
+include("cmake/tflite.cmake")
 
 #######################################################################
 #      FIND HEADER FILES TO BE INCLUDED
@@ -108,6 +110,7 @@ SET(INCLUDE_FOLDERS "-I ${RISCV}/${COMPILER_PREFIX}elf/include \
                      -I ${RISCV}/${COMPILER_PREFIX}elf/include/ \
                      -I ${ROOT_PROJECT} \
                      -I ${SOURCE_PATH} \
+                     ${TFLITE_INCLUDE_DIRECTORIES} \
 					           ${dir_list_str}")
 
 
@@ -119,7 +122,7 @@ SET(INCLUDE_FOLDERS "-I ${RISCV}/${COMPILER_PREFIX}elf/include \
 # Preliminary list of source files inside the source path
 
 # Make a list of the source files that need to be linked
-FILE(GLOB_RECURSE new_list FOLLOW_SYMLINKS ${SOURCE_PATH}*.c)
+FILE(GLOB_RECURSE new_list FOLLOW_SYMLINKS ${SOURCE_PATH}*.c ${SOURCE_PATH}*.cc ${SOURCE_PATH}*.cpp)
 SET( c_dir_list "" )
 SET( app_found 0 )
 FOREACH(file_path IN LISTS new_list)
@@ -149,7 +152,7 @@ if( app_found EQUAL 0 )
   SET(SOURCE_PATH ${ROOT_PROJECT})
 
   # Make a list of the source files that need to be linked
-  FILE(GLOB_RECURSE new_list FOLLOW_SYMLINKS ${SOURCE_PATH}*.c)
+  FILE(GLOB_RECURSE new_list FOLLOW_SYMLINKS ${SOURCE_PATH}*.c ${SOURCE_PATH}*.cc ${SOURCE_PATH}*.cpp)
   SET(c_dir_list "")
   FOREACH(file_path IN LISTS new_list)
     SET(add 0) # This variable is set to 1 if the file_pth needs to be added to the list
@@ -266,7 +269,8 @@ message( "${Magenta}Target: ${TARGET}${ColourReset}")
 SET(LINKED_FILES    "${LIB_CRT_P} \
                      ${LIB_VCTR_P} \
                      ${LIB_CRT_EXT_P} \
-                     ${c_dir_list}")
+                     ${c_dir_list} \
+                     ${SOURCE_PATH}tflite-micro/bin/libtflm.a")
 
 message( "${Magenta}Linked files: ${LINKED_FILES}${ColourReset}")
 
@@ -311,7 +315,8 @@ set(COMPILER_LINKER_FLAGS "\
   -D${CRTO} \
   -DportasmHANDLE_INTERRUPT=vSystemIrqHandler\
 ")
-set(CMAKE_C_FLAGS ${COMPILER_LINKER_FLAGS})
+set(CMAKE_C_FLAGS "${COMPILER_LINKER_FLAGS} ${TFLITE_CMAKE_C_FLAGS}")
+set(CMAKE_CXX_FLAGS "${COMPILER_LINKER_FLAGS} ${TFLITE_CMAKE_CXX_FLAGS}")
 
 if (${COMPILER} MATCHES "clang")
      set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --target=riscv32 \
@@ -364,7 +369,7 @@ SET(CMAKE_EXE_LINKER_FLAGS  "-T ${LINKER_SCRIPT}  \
                              -static ${LINKED_FILES} \
                              -Wl,-Map=${MAINFILE}.map \
                              -L ${RISCV}/${COMPILER_PREFIX}elf/lib \
-                             -lc -lm -lgcc -flto \
+                             -lc -lm -lgcc -flto -lstdc++ \
                             -ffunction-sections -fdata-sections -specs=nano.specs")
 message( "${Magenta}Lib Folder RISCV-GCC: ${RISCV}/${COMPILER_PREFIX}elf/lib${ColourReset}")
 
