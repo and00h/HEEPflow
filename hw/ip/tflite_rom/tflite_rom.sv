@@ -17932,7 +17932,7 @@ module tflite_rom
 
   always_comb begin
     if (word_addr > (ModelSize - 1)) begin
-      reg_rsp_o.rdata = '0;
+      reg_rsp_o.rdata = 'hB;
     end else begin
       reg_rsp_o.rdata = mem[rom_addr];
     end

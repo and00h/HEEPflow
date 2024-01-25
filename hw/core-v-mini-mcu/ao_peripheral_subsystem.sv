@@ -260,6 +260,11 @@ module ao_peripheral_subsystem
       .reg_rsp_o(ao_peripheral_slv_rsp[core_v_mini_mcu_pkg::BOOTROM_IDX])
   );
 
+  tflite_rom tflite_rom_i (
+      .reg_req_i(ao_peripheral_slv_req[core_v_mini_mcu_pkg::TFLITE_ROM_IDX]),
+      .reg_rsp_o(ao_peripheral_slv_rsp[core_v_mini_mcu_pkg::TFLITE_ROM_IDX])
+  );
+
   spi_subsystem spi_subsystem_i (
       .clk_i,
       .rst_ni,
@@ -445,11 +450,6 @@ module ao_peripheral_subsystem
       .tl_i(uart_tl_d2h),
       .reg_req_i(ao_peripheral_slv_req[core_v_mini_mcu_pkg::UART_IDX]),
       .reg_rsp_o(ao_peripheral_slv_rsp[core_v_mini_mcu_pkg::UART_IDX])
-  );
-
-  tflite_rom tflite_rom_i (
-      .reg_req_i(ao_peripheral_slv_req[core_v_mini_mcu_pkg::TFLITE_ROM_IDX]),
-      .reg_rsp_o(ao_peripheral_slv_rsp[core_v_mini_mcu_pkg::TFLITE_ROM_IDX])
   );
 
   uart uart_i (

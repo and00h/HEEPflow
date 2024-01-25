@@ -126,6 +126,14 @@ module ext_bus #(
           "write addr=0x%08x: data=0x%08x", heep_core_data_req_i.addr, heep_core_data_req_i.wdata
       );
   end
+  always_ff @(posedge clk_i, negedge rst_ni) begin : verbose_reads
+    if ($test$plusargs(
+            "verbose"
+        ) != 0 && heep_core_data_req_i.req && !heep_core_data_req_i.we &&
+            heep_core_data_req_i.addr >= core_v_mini_mcu_pkg::TFLITE_ROM_START_ADDRESS &&
+            heep_core_data_req_i.addr < core_v_mini_mcu_pkg::TFLITE_ROM_END_ADDRESS)
+      $display("read addr=0x%08x", heep_core_data_req_i.addr);
+  end
 `endif
 
   // 1-to-2 forward crossbars
