@@ -38,7 +38,7 @@
 
     ao_peripherals: {
         address: 0x20000000,
-        length:  0x00800000,
+        length:  0x01000000,
         soc_ctrl: {
             offset:  0x00000000,
             length:  0x00010000,
@@ -99,8 +99,7 @@
         },
         tflite_rom: {
             offset:  0x00100000,
-            length:  0x00700000,
-            is_included: "yes"
+            length:  0x00100000,
         },
     },
 
