@@ -79,3 +79,9 @@ include cmake/targets.mak
 # GDB connection using RISCV-GDB back-end
 gdb_connect:
 	  $(RISCV_GDB_PATH) build/main.elf -x gdbInit;
+
+libtflm:
+	$(MAKE) -C tflite-micro
+
+libtflm-clean:
+	$(MAKE) -C tflite-micro clean

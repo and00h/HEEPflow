@@ -23,9 +23,21 @@
 #define static_assert _Static_assert
 #endif  // __cplusplus
 
+#ifndef __ASSERT_DEFINED
+#define __ASSERT_DEFINED
+
+inline void __assert_msg() {
+  #pragma warning "assert() should not be used in device code" 
+  return;
+}
+
+#endif
+
 // `assert()` should not be used. When building with Clang, using this function
 // in device code will emit a compile-time error.
-#define assert(do_not_use) \
-  static_assert(false, "do not use assert(); use CHECK() instead")
+#define assert(do_not_use) {\
+  __assert_msg(); \
+  (void)(do_not_use); \
+}
 
 #endif  // OPENTITAN_SW_DEVICE_LIB_BASE_FREESTANDING_ASSERT_H_
