@@ -36,7 +36,7 @@ LINKER   ?= on_chip
 
 # Target options are 'sim' (default) and 'pynq-z2' and 'nexys-a7-100t'
 TARGET   	?= sim
-MCU_CFG  	?= mcu_cfg.hjson
+MCU_CFG  	?= mcu_cfg_tflite.hjson
 PAD_CFG  	?= pad_cfg.hjson
 EXT_PAD_CFG ?=
 

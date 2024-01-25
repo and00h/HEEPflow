@@ -35,6 +35,7 @@ filesets:
     - x-heep:ip:fast_intr_ctrl
     - x-heep:ip:obi_fifo
     - x-heep:ip:pdm2pcm
+    - x-heep:ip:tflite_rom
     files:
     - hw/core-v-mini-mcu/core_v_mini_mcu.sv
     - hw/core-v-mini-mcu/cpu_subsystem.sv
@@ -92,6 +93,7 @@ filesets:
     - hw/system/x_heep_system.vlt
     - hw/simulation/simulation.vlt
     - hw/ip/i2s/i2s.vlt
+    - hw/ip/tflite_rom/tflite_rom.vlt
     file_type: vlt
 
   rtl-fpga:
