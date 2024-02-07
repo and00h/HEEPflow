@@ -172,13 +172,12 @@ TfLiteStatus LoadQuantModelAndPerformInference() {
     TF_LITE_ENSURE_STATUS(interpreter.Invoke());
     for (int j = 0; j < 10; j++) {
       int val = output->data.int8[j];
-      printf("%d ", val);
-    // }
-    MicroPrintf("");
+      printf("%d (%d)\r\n", val, golden_outputs[j]);
+    }
+    // MicroPrintf("");
     // float y_pred = (output->data.int8[0]  - output_zero_point) * output_scale;
     // printf("%.2f %.2f\r\n", y_pred, golden_inputs_float[i]);
     // TFLITE_CHECK_LE(abs(sin(golden_inputs_float[i]) - y_pred), epsilon);
-  }
 
   return kTfLiteOk;
 }
