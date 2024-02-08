@@ -13,11 +13,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 #pragma message "hello_world_test.cc"
-extern "C" {
-  #include "lenet5_test.h"
-  #include <math.h>
-  #include <stdio.h>
-  #include "core_v_mini_mcu.h"
+extern "C"
+{
+#include "lenet5_test.h"
+#include <math.h>
+#include <stdio.h>
+#include "core_v_mini_mcu.h"
 }
 
 #include "models/lenet5_input.h"
@@ -31,59 +32,61 @@ extern "C" {
 #include "tensorflow/lite/micro/system_setup.h"
 #include "tensorflow/lite/schema/schema_generated.h"
 
-namespace {
-using HelloWorldOpResolver = tflite::MicroMutableOpResolver<7>;
+namespace
+{
+  using HelloWorldOpResolver = tflite::MicroMutableOpResolver<7>;
 
-TfLiteStatus RegisterOps(HelloWorldOpResolver& op_resolver) {
-  TF_LITE_ENSURE_STATUS(op_resolver.AddFullyConnected());
-  TF_LITE_ENSURE_STATUS(op_resolver.AddConv2D());
-  TF_LITE_ENSURE_STATUS(op_resolver.AddAveragePool2D());
-  TF_LITE_ENSURE_STATUS(op_resolver.AddTanh());
-  TF_LITE_ENSURE_STATUS(op_resolver.AddReshape());
-  TF_LITE_ENSURE_STATUS(op_resolver.AddSoftmax());
-  TF_LITE_ENSURE_STATUS(op_resolver.AddLogistic());
+  TfLiteStatus RegisterOps(HelloWorldOpResolver &op_resolver)
+  {
+    TF_LITE_ENSURE_STATUS(op_resolver.AddFullyConnected());
+    TF_LITE_ENSURE_STATUS(op_resolver.AddConv2D());
+    TF_LITE_ENSURE_STATUS(op_resolver.AddAveragePool2D());
+    TF_LITE_ENSURE_STATUS(op_resolver.AddTanh());
+    TF_LITE_ENSURE_STATUS(op_resolver.AddReshape());
+    TF_LITE_ENSURE_STATUS(op_resolver.AddSoftmax());
+    TF_LITE_ENSURE_STATUS(op_resolver.AddLogistic());
+    return kTfLiteOk;
+  }
+} // namespace
+
+TfLiteStatus ProfileMemoryAndLatency()
+{
+  printf("pmal\r\n");
+  const uint8_t *volatile tflite_rom = (const uint8_t *volatile)TFLITE_ROM_START_ADDRESS;
+  tflite::MicroProfiler profiler;
+  HelloWorldOpResolver op_resolver;
+  TF_LITE_ENSURE_STATUS(RegisterOps(op_resolver));
+
+  // Arena size just a round number. The exact arena usage can be determined
+  // using the RecordingMicroInterpreter.
+  constexpr int kTensorArenaSize = 0x4000;
+  uint8_t tensor_arena[kTensorArenaSize];
+  constexpr int kNumResourceVariables = 96;
+
+  tflite::RecordingMicroAllocator *allocator(
+      tflite::RecordingMicroAllocator::Create(tensor_arena, kTensorArenaSize));
+  tflite::RecordingMicroInterpreter interpreter(
+      tflite::GetModel(tflite_rom), op_resolver, allocator,
+      tflite::MicroResourceVariables::Create(allocator, kNumResourceVariables),
+      &profiler);
+
+  TF_LITE_ENSURE_STATUS(interpreter.AllocateTensors());
+  TfLiteTensor *input = interpreter.input(0);
+  TFLITE_CHECK_NE(input, nullptr);
+
+  TfLiteTensor *output = interpreter.output(0);
+  TFLITE_CHECK_NE(output, nullptr);
+
+  int8_t golden_outputs[10] = {-128, -128, 116, -126, -128, -128, -128, -128, -118, -128};
+
+  TFLITE_CHECK_EQ(interpreter.inputs_size(), 1);
+  memcpy(input->data.int8, &lenet_input_data, lenet_input_data_size);
+  TF_LITE_ENSURE_STATUS(interpreter.Invoke());
+
+  profiler.LogTicksPerTagCsv();
+  interpreter.GetMicroAllocator().PrintAllocations();
   return kTfLiteOk;
 }
-}  // namespace
-
-// TfLiteStatus ProfileMemoryAndLatency() {
-//   printf("pmal\r\n");
-//   const uint8_t * volatile tflite_rom = (const uint8_t * volatile) TFLITE_ROM_START_ADDRESS;
-//   tflite::MicroProfiler profiler;
-//   HelloWorldOpResolver op_resolver;
-//   TF_LITE_ENSURE_STATUS(RegisterOps(op_resolver));
-
-//   // Arena size just a round number. The exact arena usage can be determined
-//   // using the RecordingMicroInterpreter.
-//   constexpr int kTensorArenaSize = 5900;
-//   uint8_t tensor_arena[kTensorArenaSize];
-//   constexpr int kNumResourceVariables = 96;
-
-//   printf("alloc\r\n");
-//   tflite::RecordingMicroAllocator* allocator(
-//       tflite::RecordingMicroAllocator::Create(tensor_arena, kTensorArenaSize));
-//   printf("intp\r\n");
-//   tflite::RecordingMicroInterpreter interpreter(
-//       tflite::GetModel(tflite_rom), op_resolver, allocator,
-//       tflite::MicroResourceVariables::Create(allocator, kNumResourceVariables),
-//       &profiler);
-
-//   printf("tens\r\n");
-//   TF_LITE_ENSURE_STATUS(interpreter.AllocateTensors());
-//   printf("tens\r\n");
-//   TFLITE_CHECK_EQ(interpreter.inputs_size(), 1);
-//   printf("avo\r\n");
-//   for (int i = 0; i < lenet_input_data_size; ++i) {
-//     interpreter.input(0)->data.int8[0] = 1;
-//   }
-//   TF_LITE_ENSURE_STATUS(interpreter.Invoke());
-
-//   // MicroPrintf("");  // Print an empty new line
-//   // profiler.LogTicksPerTagCsv();
-
-//   interpreter.GetMicroAllocator().PrintAllocations();
-//   return kTfLiteOk;
-// }
 
 // TfLiteStatus LoadFloatModelAndPerformInference() {
 //   const tflite::Model* model =
@@ -118,20 +121,20 @@ TfLiteStatus RegisterOps(HelloWorldOpResolver& op_resolver) {
 //   return kTfLiteOk;
 // }
 
-TfLiteStatus LoadQuantModelAndPerformInference() {
+TfLiteStatus LoadQuantModelAndPerformInference()
+{
   // Map the model into a usable data structure. This doesn't involve any
   // copying or parsing, it's a very lightweight operation.
-  
 
   printf("%p\r\n", tflite_rom);
 
-  for (int i = 0; i < 16; i++) {
+  for (int i = 0; i < 16; i++)
+  {
     printf("%02X ", tflite_rom[i]);
   }
-  const tflite::Model* model =
+  const tflite::Model *model =
       ::tflite::GetModel(tflite_rom);
   TFLITE_CHECK_EQ(model->version(), TFLITE_SCHEMA_VERSION);
-  printf("ua\r\n");
   HelloWorldOpResolver op_resolver;
   TF_LITE_ENSURE_STATUS(RegisterOps(op_resolver));
   // Arena size just a round number. The exact arena usage can be determined
@@ -142,13 +145,12 @@ TfLiteStatus LoadQuantModelAndPerformInference() {
   tflite::MicroInterpreter interpreter(model, op_resolver, tensor_arena,
                                        kTensorArenaSize);
 
-  printf("alloc\r\n");
   TF_LITE_ENSURE_STATUS(interpreter.AllocateTensors());
   printf("alloc\r\n");
-  TfLiteTensor* input = interpreter.input(0);
+  TfLiteTensor *input = interpreter.input(0);
   TFLITE_CHECK_NE(input, nullptr);
 
-  TfLiteTensor* output = interpreter.output(0);
+  TfLiteTensor *output = interpreter.output(0);
   TFLITE_CHECK_NE(output, nullptr);
 
   // float output_scale = output->params.scale;
@@ -160,37 +162,40 @@ TfLiteStatus LoadQuantModelAndPerformInference() {
 
   // constexpr int kNumTestValues = 4;
   // float golden_inputs_float[kNumTestValues] = {0.77, 1.57, 2.3, 3.14};
-  int8_t golden_outputs[10] = {-128, -128,  116, -126, -128, -128, -128, -128, -118, -128};
+  int8_t golden_outputs[10] = {-128, -128, 116, -126, -128, -128, -128, -128, -118, -128};
   // The int8 values are calculated using the following formula
   // (golden_inputs_float[i] / input->params.scale + input->params.scale)
   // int8_t golden_inputs_int8[kNumTestValues] = {-96, -63, -34, 0};
 
   // for (int i = 0; i < kNumTestValues; ++i) {
-    memcpy(input->data.int8, &lenet_input_data, lenet_input_data_size);
-    printf("inv\r\n");
-    // input->data.int8[0] = golden_inputs_int8[i];
-    TF_LITE_ENSURE_STATUS(interpreter.Invoke());
-    for (int j = 0; j < 10; j++) {
-      int val = output->data.int8[j];
-      printf("%d (%d)\r\n", val, golden_outputs[j]);
-    }
-    // MicroPrintf("");
-    // float y_pred = (output->data.int8[0]  - output_zero_point) * output_scale;
-    // printf("%.2f %.2f\r\n", y_pred, golden_inputs_float[i]);
-    // TFLITE_CHECK_LE(abs(sin(golden_inputs_float[i]) - y_pred), epsilon);
+  memcpy(input->data.int8, &lenet_input_data, lenet_input_data_size);
+  printf("inv\r\n");
+  // input->data.int8[0] = golden_inputs_int8[i];
+  TF_LITE_ENSURE_STATUS(interpreter.Invoke());
+  for (int j = 0; j < 10; j++)
+  {
+    int val = output->data.int8[j];
+    printf("%d (%d)\r\n", val, golden_outputs[j]);
+  }
+  // MicroPrintf("");
+  // float y_pred = (output->data.int8[0]  - output_zero_point) * output_scale;
+  // printf("%.2f %.2f\r\n", y_pred, golden_inputs_float[i]);
+  // TFLITE_CHECK_LE(abs(sin(golden_inputs_float[i]) - y_pred), epsilon);
 
   return kTfLiteOk;
 }
 
-int tfl() {
+int tfl()
+{
   tflite::InitializeTarget();
-  //TF_LITE_ENSURE_STATUS(ProfileMemoryAndLatency());
-  // TF_LITE_ENSURE_STATUS(LoadFloatModelAndPerformInference());
+  // TF_LITE_ENSURE_STATUS(ProfileMemoryAndLatency());
+  //  TF_LITE_ENSURE_STATUS(LoadFloatModelAndPerformInference());
   TF_LITE_ENSURE_STATUS(LoadQuantModelAndPerformInference());
   printf("Test passed\r\n");
   return kTfLiteOk;
 }
 
-extern "C" int RunLenet5() {
+extern "C" int RunLenet5()
+{
   return tfl();
 }

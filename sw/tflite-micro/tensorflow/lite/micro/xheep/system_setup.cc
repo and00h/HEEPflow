@@ -14,15 +14,21 @@ limitations under the License.
 ==============================================================================*/
 
 #include "tensorflow/lite/micro/system_setup.h"
+#include "csr.h"
+#include "x-heep.h"
 #include <cstdio>
 
-namespace tflite {
+namespace tflite
+{
 
-// To add an equivalent function for your own platform, create your own
-// implementation file, and place it in a subfolder named after the target. See
-// tensorflow/lite/micro/debug_log.cc for a similar example.
-void InitializeTarget() {
-    printf("init\r\n");
-}
+    // To add an equivalent function for your own platform, create your own
+    // implementation file, and place it in a subfolder named after the target. See
+    // tensorflow/lite/micro/debug_log.cc for a similar example.
+    void InitializeTarget()
+    {
+        CSR_CLEAR_BITS(CSR_REG_MCOUNTINHIBIT, 0x1);
+        CSR_WRITE(CSR_REG_MCYCLE, 0);
+        printf("init\r\n");
+    }
 
-}  // namespace tflite
+} // namespace tflite
