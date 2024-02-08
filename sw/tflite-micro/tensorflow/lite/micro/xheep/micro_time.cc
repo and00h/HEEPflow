@@ -28,31 +28,47 @@ limitations under the License.
 
 #if defined(TF_LITE_USE_CTIME)
 #include <ctime>
+#else
+#include "csr.h"
+#include "x-heep.h"
 #endif
 
-namespace tflite {
+namespace tflite
+{
 
 #if !defined(TF_LITE_USE_CTIME)
 
-// Reference implementation of the ticks_per_second() function that's required
-// for a platform to support Tensorflow Lite for Microcontrollers profiling.
-// This returns 0 by default because timing is an optional feature that builds
-// without errors on platforms that do not need it.
-uint32_t ticks_per_second() { return 0; }
+    // Reference implementation of the ticks_per_second() function that's required
+    // for a platform to support Tensorflow Lite for Microcontrollers profiling.
+    // This returns 0 by default because timing is an optional feature that builds
+    // without errors on platforms that do not need it.
+    uint32_t ticks_per_second() { return REFERENCE_CLOCK_Hz; }
 
-// Reference implementation of the GetCurrentTimeTicks() function that's
-// required for a platform to support Tensorflow Lite for Microcontrollers
-// profiling. This returns 0 by default because timing is an optional feature
-// that builds without errors on platforms that do not need it.
-uint32_t GetCurrentTimeTicks() { return 0; }
+    // Reference implementation of the GetCurrentTimeTicks() function that's
+    // required for a platform to support Tensorflow Lite for Microcontrollers
+    // profiling. This returns 0 by default because timing is an optional feature
+    // that builds without errors on platforms that do not need it.
+    uint32_t GetCurrentTimeTicks()
+    {
+        // static bool is_initialized = false;
+        // if (!is_initialized)
+        // {
+        // CSR_CLEAR_BITS(CSR_REG_MCOUNTINHIBIT, 0x1);
+        // CSR_WRITE(CSR_REG_MCYCLE, 0);
+        // is_initialized = true;
+        // }
+        unsigned int cycles = 0;
+        CSR_READ(CSR_REG_MCYCLE, &cycles);
+        return cycles;
+    }
 
-#else  // defined(TF_LITE_USE_CTIME)
+#else // defined(TF_LITE_USE_CTIME)
 
-// For platforms that support ctime, we implment the micro_time interface in
-// this central location.
-uint32_t ticks_per_second() { return CLOCKS_PER_SEC; }
+    // For platforms that support ctime, we implment the micro_time interface in
+    // this central location.
+    uint32_t ticks_per_second() { return CLOCKS_PER_SEC; }
 
-uint32_t GetCurrentTimeTicks() { return clock(); }
+    uint32_t GetCurrentTimeTicks() { return clock(); }
 #endif
 
-}  // namespace tflite
+} // namespace tflite
