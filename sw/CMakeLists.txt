@@ -127,7 +127,7 @@ SET( c_dir_list "" )
 SET( app_found 0 )
 FOREACH(file_path IN LISTS new_list)
   SET(add 0) # This variable is set to 1 if the file_pth needs to be added to the list
-  if(${file_path} MATCHES "/device/")
+  if(${file_path} MATCHES "/device/" AND ( NOT ${file_path} MATCHES "syscalls" ))
     SET(add 1)
   elseif( ${file_path} MATCHES "/external/" )
     SET(add 1)
@@ -156,7 +156,7 @@ if( app_found EQUAL 0 )
   SET(c_dir_list "")
   FOREACH(file_path IN LISTS new_list)
     SET(add 0) # This variable is set to 1 if the file_pth needs to be added to the list
-    if(${file_path} MATCHES "/device/")
+    if(${file_path} MATCHES "/device/" AND ( NOT ${file_path} MATCHES "syscalls" ))
       SET(add 1)
     elseif( ( ${file_path} MATCHES "/${PROJECT}/" ) AND ( NOT ${file_path} MATCHES ${MAINFILE} ) )
       SET(add 1)
@@ -366,11 +366,11 @@ set_target_properties(${MAINFILE}.elf PROPERTIES LINK_DEPENDS "${LINKER_SCRIPT}"
 # Linker control
 SET(CMAKE_EXE_LINKER_FLAGS  "-T ${LINKER_SCRIPT}  \
                             ${INCLUDE_FOLDERS} \
-                             -static ${LINKED_FILES} \
+                            -static ${LINKED_FILES} ../device/lib/runtime/syscalls.c \
                              -Wl,-Map=${MAINFILE}.map \
                              -L ${RISCV}/${COMPILER_PREFIX}elf/lib \
-                             -lc -lm -lgcc -flto -lstdc++ \
-                            -ffunction-sections -fdata-sections -specs=nano.specs")
+                            -lc -lm -lgcc -flto -lstdc++  \
+                            -specs=nano.specs -ffunction-sections -fdata-sections")
 message( "${Magenta}Lib Folder RISCV-GCC: ${RISCV}/${COMPILER_PREFIX}elf/lib${ColourReset}")
 
 SET(CMAKE_VERBOSE_MAKEFILE on)
