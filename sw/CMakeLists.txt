@@ -127,7 +127,11 @@ SET( c_dir_list "" )
 SET( app_found 0 )
 FOREACH(file_path IN LISTS new_list)
   SET(add 0) # This variable is set to 1 if the file_pth needs to be added to the list
+<<<<<<< HEAD
   if(${file_path} MATCHES "${SOURCE_PATH}device/" AND ( NOT ${file_path} MATCHES "syscalls" ))
+=======
+  if(${file_path} MATCHES "/device/" AND ( NOT ${file_path} MATCHES "syscalls" ))
+>>>>>>> origin/main
     SET(add 1)
   elseif( ${file_path} MATCHES "${SOURCE_PATH}external/" )
     SET(add 1)
@@ -156,7 +160,11 @@ if( app_found EQUAL 0 )
   SET(c_dir_list "")
   FOREACH(file_path IN LISTS new_list)
     SET(add 0) # This variable is set to 1 if the file_pth needs to be added to the list
+<<<<<<< HEAD
     if(${file_path} MATCHES "${ROOT_PROJECT}device/" AND ( NOT ${file_path} MATCHES "syscalls" ))
+=======
+    if(${file_path} MATCHES "/device/" AND ( NOT ${file_path} MATCHES "syscalls" ))
+>>>>>>> origin/main
       SET(add 1)
     elseif( ( ${file_path} MATCHES "${ROOT_PROJECT}/applications/${PROJECT}/" ) AND ( NOT ${file_path} MATCHES "${ROOT_PROJECT}applications/${PROJECT}/.*${MAINFILE}\." ) )
       SET(add 1)
@@ -307,6 +315,7 @@ endif()
 # Set CMAKE flags
 
 # specify the C standard
+<<<<<<< HEAD
 if(NOT ${PROJECT} MATCHES "coremark")
   set(COMPILER_LINKER_FLAGS "\
     -march=${CMAKE_SYSTEM_PROCESSOR} \
@@ -329,6 +338,16 @@ else()
   ")
 endif()
 
+=======
+set(COMPILER_LINKER_FLAGS "\
+  -march=${CMAKE_SYSTEM_PROCESSOR} \
+  -w -Os -g  -nostdlib  \
+  -DHOST_BUILD \
+  -D${CRT_TYPE} \
+  -D${CRTO} \
+  -DportasmHANDLE_INTERRUPT=vSystemIrqHandler\
+")
+>>>>>>> origin/main
 set(CMAKE_C_FLAGS "${COMPILER_LINKER_FLAGS} ${TFLITE_CMAKE_C_FLAGS}")
 set(CMAKE_CXX_FLAGS "${COMPILER_LINKER_FLAGS} ${TFLITE_CMAKE_CXX_FLAGS}")
 
