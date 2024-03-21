@@ -171,12 +171,12 @@ TfLiteStatus LoadQuantModelAndPerformInference()
   memcpy(input->data.int8, &lenet_input_data, lenet_input_data_size);
   printf("inv\r\n");
   // input->data.int8[0] = golden_inputs_int8[i];
-  TF_LITE_ENSURE_STATUS(interpreter.Invoke());
-  for (int j = 0; j < 10; j++)
-  {
-    int val = output->data.int8[j];
-    printf("%d (%d)\r\n", val, golden_outputs[j]);
-  }
+  //TF_LITE_ENSURE_STATUS(interpreter.Invoke());
+  //for (int j = 0; j < 10; j++)
+  //{
+  //  int val = output->data.int8[j];
+  //  printf("%d (%d)\r\n", val, golden_outputs[j]);
+  //}
   // MicroPrintf("");
   // float y_pred = (output->data.int8[0]  - output_zero_point) * output_scale;
   // printf("%.2f %.2f\r\n", y_pred, golden_inputs_float[i]);
